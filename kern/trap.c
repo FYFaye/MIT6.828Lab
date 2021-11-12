@@ -58,6 +58,26 @@ static const char *trapname(int trapno)
 	return "(unknown trap)";
 }
 
+void t_divide_handler();
+void t_debug_handler();
+void t_nmi_handler();
+void t_breakpoint_handler();
+void t_overflow_handler();
+void t_bounds_handler();
+void t_illop_handler();
+void t_device_handler();
+void t_dblfault_handler();
+void t_tss_handler();
+void t_segnp_handler();
+void t_stack_handler();
+void t_gpfault_handler();
+void t_pagefault_handler();
+void t_fperr_handler();
+void t_align_handler();
+void t_mchk_handler();
+void t_simderr_handler();
+
+void t_syscall();
 
 void
 trap_init(void)
@@ -65,7 +85,25 @@ trap_init(void)
 	extern struct Segdesc gdt[];
 
 	// LAB 3: Your code here.
-
+	SETGATE(idt[T_DIVIDE], 0, GD_KT, t_divide_handler, 0);
+	SETGATE(idt[T_DEBUG], 0, GD_KT, t_debug_handler, 0);
+	SETGATE(idt[T_NMI], 0, GD_KT, t_nmi_handler, 0);
+	SETGATE(idt[T_BRKPT], 0, GD_KT, t_breakpoint_handler, 3);
+	SETGATE(idt[T_OFLOW], 0, GD_KT, t_overflow_handler, 0);
+	SETGATE(idt[T_BOUND], 0, GD_KT, t_bounds_handler, 0);
+	SETGATE(idt[T_ILLOP], 0, GD_KT, t_illop_handler, 0);
+	SETGATE(idt[T_DEVICE], 0, GD_KT, t_device_handler, 0);
+	SETGATE(idt[T_DBLFLT], 0, GD_KT, t_dblfault_handler, 0);
+	SETGATE(idt[T_TSS], 0, GD_KT, t_tss_handler, 0);
+	SETGATE(idt[T_SEGNP], 0, GD_KT, t_segnp_handler, 0);
+	SETGATE(idt[T_STACK], 0, GD_KT, t_stack_handler, 0);
+	SETGATE(idt[T_GPFLT], 0, GD_KT, t_gpfault_handler, 0);
+	SETGATE(idt[T_PGFLT], 0, GD_KT, t_pagefault_handler, 0);
+	SETGATE(idt[T_FPERR], 0, GD_KT, t_fperr_handler, 0);
+	SETGATE(idt[T_ALIGN], 0, GD_KT, t_align_handler, 0);
+	SETGATE(idt[T_MCHK], 0, GD_KT, t_mchk_handler, 0);
+	SETGATE(idt[T_SIMDERR], 0, GD_KT, t_simderr_handler, 0);
+	SETGATE(idt[T_SYSCALL], 0, GD_KT, t_syscall, 3);
 	// Per-CPU setup 
 	trap_init_percpu();
 }
