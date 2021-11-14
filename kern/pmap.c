@@ -586,7 +586,19 @@ int
 user_mem_check(struct Env *env, const void *va, size_t len, int perm)
 {
 	// LAB 3: Your code here.
+	int start = (int)ROUNDDOWN(va, PGSIZE), end = (int)ROUNDUP(va + len, PGSIZE);
+	for (int i = start; i < end; i += PGSIZE){
+		pte_t *pCur = pgdir_walk(env->env_pgdir, (const void *)i, 0);
+		// i beyond ULIM Or pagedir not present Or perm is fault
+		if (i > ULIM || pCur == NULL || (*pCur & perm) != perm){
+			if (i == start)
+				user_mem_check_addr = (uintptr_t)va;
+			else
+				user_mem_check_addr = i;
 
+			return -E_FAULT;
+		}
+	}
 	return 0;
 }
 
