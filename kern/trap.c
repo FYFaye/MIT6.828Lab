@@ -214,7 +214,6 @@ trap_dispatch(struct Trapframe *tf)
 {
 	// Handle processor exceptions.
 	// LAB 3: Your code here.
-<<<<<<< HEAD
 
 	// Handle spurious interrupts
 	// The hardware sometimes raises these because of noise on the
@@ -229,14 +228,6 @@ trap_dispatch(struct Trapframe *tf)
 	// interrupt using lapic_eoi() before calling the scheduler!
 	// LAB 4: Your code here.
 
-	// Unexpected trap: The user process or the kernel has a bug.
-	print_trapframe(tf);
-	if (tf->tf_cs == GD_KT)
-		panic("unhandled trap in kernel");
-	else {
-		env_destroy(curenv);
-		return;
-=======
 	int32_t retCode;
 	switch(tf->tf_trapno){
 		case T_PGFLT:
@@ -264,7 +255,6 @@ trap_dispatch(struct Trapframe *tf)
 				return;
 			}
 			break;
->>>>>>> lab3
 	}
 	
 }
