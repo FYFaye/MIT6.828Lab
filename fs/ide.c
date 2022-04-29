@@ -59,7 +59,10 @@ ide_set_disk(int d)
 	diskno = d;
 }
 
-
+/*
+ *@ detail 硬盘读函数
+	从secno开始读取nsecs个sector到虚拟内存dst中
+*/
 int
 ide_read(uint32_t secno, void *dst, size_t nsecs)
 {
@@ -85,6 +88,10 @@ ide_read(uint32_t secno, void *dst, size_t nsecs)
 	return 0;
 }
 
+/*
+ *@ detail 硬盘写函数
+	从虚拟内存src中，从secno开始写入nsecs个sector到disk
+*/
 int
 ide_write(uint32_t secno, const void *src, size_t nsecs)
 {

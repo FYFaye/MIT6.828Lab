@@ -268,11 +268,10 @@ trap_dispatch(struct Trapframe *tf)
 	// Handle keyboard and serial interrupts.
 	// LAB 5: Your code here.
 
-
-	if (tf->tf_trapno == IRQ_OFFSET + IRQ_TIMER){
-		lapic_eoi();
-		sched_yield();
-	}
+	// if (tf->tf_trapno == IRQ_OFFSET + IRQ_TIMER){
+	// 	lapic_eoi();
+	// 	sched_yield();
+	// }
 	int32_t retCode;
 	switch(tf->tf_trapno){
 		case T_PGFLT:
@@ -289,6 +288,18 @@ trap_dispatch(struct Trapframe *tf)
 					tf->tf_regs.reg_edi, 
 					tf->tf_regs.reg_esi);
 			tf->tf_regs.reg_eax = retCode;
+			break;
+		case (IRQ_OFFSET + IRQ_KBD):
+			lapic_eoi();
+			kbd_intr();
+			break;
+		case (IRQ_OFFSET + IRQ_SERIAL):
+			lapic_eoi();
+			serial_intr();
+			break;
+		case ( IRQ_OFFSET + IRQ_TIMER):
+			lapic_eoi();
+			sched_yield();
 			break;
 		default:
 			// Unexpected trap: The user process or the kernel has a bug.

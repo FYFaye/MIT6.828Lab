@@ -5,7 +5,7 @@
 
 #include <inc/x86.h>
 #include <inc/string.h>
-
+#include <inc/types.h>
 #include "fs.h"
 
 
@@ -214,7 +214,16 @@ serve_read(envid_t envid, union Fsipc *ipc)
 		cprintf("serve_read %08x %08x %08x\n", envid, req->req_fileid, req->req_n);
 
 	// Lab 5: Your code here:
-	return 0;
+	//  
+	struct OpenFile *opfile;
+	int r = openfile_lookup(envid, req->req_fileid, &opfile);
+	if (r < 0)
+		return r;
+	// read file
+	r = file_read(opfile->o_file, ret, req->req_n, opfile->o_fd->fd_offset);
+	if (r > 0)
+		opfile->o_fd->fd_offset += r;
+	return r;
 }
 
 
@@ -229,7 +238,17 @@ serve_write(envid_t envid, struct Fsreq_write *req)
 		cprintf("serve_write %08x %08x %08x\n", envid, req->req_fileid, req->req_n);
 
 	// LAB 5: Your code here.
-	panic("serve_write not implemented");
+	// 参照serve_read即可
+	struct OpenFile *opfile;
+	int r = openfile_lookup(envid, req->req_fileid, &opfile);
+	if (r < 0)
+		return r;
+	size_t sz = MIN(req->req_n, PGSIZE - (sizeof(int) + sizeof(size_t)));
+	r = file_write(opfile->o_file, req->req_buf, sz, opfile->o_fd->fd_offset);
+	if (r > 0)
+		opfile->o_fd->fd_offset += r;
+	return r;
+	//panic("serve_write not implemented");
 }
 
 // Stat ipc->stat.req_fileid.  Return the file's struct Stat to the

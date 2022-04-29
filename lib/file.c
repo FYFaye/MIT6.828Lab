@@ -141,6 +141,21 @@ devfile_write(struct Fd *fd, const void *buf, size_t n)
 	// remember that write is always allowed to write *fewer*
 	// bytes than requested.
 	// LAB 5: Your code here
+	// 最大的n就是Fsipc.write中buf中的定义
+	int maxSZ = PGSIZE - (sizeof(int) + sizeof(size_t));
+	size_t sz = MIN(n, maxSZ);
+	int r;
+	// 参考devfile_read写定义
+	fsipcbuf.write.req_fileid = fd->fd_file.id;
+	fsipcbuf.write.req_n = sz;
+	memmove(fsipcbuf.write.req_buf, buf, sz);
+	// 最后在发送请求
+	r = fsipc(FSREQ_WRITE, NULL);
+	if (r < 0)
+		return r;
+	return sz;
+
+	
 	panic("devfile_write not implemented");
 }
 
