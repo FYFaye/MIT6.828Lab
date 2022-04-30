@@ -25,7 +25,12 @@ pgfault(struct UTrapframe *utf)
 	//   (see <inc/memlayout.h>).
 
 	// LAB 4: Your code here.
+	if (!((err & FEC_WR) && (uvpd[PDX(addr)] & PTE_P) 
+			&& (uvpt[PGNUM(addr)] & PTE_P) && 
+			(uvpt[PGNUM(addr)] & PTE_COW)))
+		panic("not copy-on-write");
 
+	addr = ROUNDDOWN(addr, PGSIZE);
 	// Allocate a new page, map it at a temporary location (PFTEMP),
 	// copy the data from the old page to the new page, then move the new
 	// page to the old page's address.
@@ -33,8 +38,15 @@ pgfault(struct UTrapframe *utf)
 	//   You should make three system calls.
 
 	// LAB 4: Your code here.
-
-	panic("pgfault not implemented");
+	if (sys_page_alloc(0, PFTEMP, PTE_W|PTE_U|PTE_P) < 0)
+		panic("sys_page_alloc");
+	memcpy(PFTEMP, addr, PGSIZE);
+	if (sys_page_map(0, PFTEMP, 0, addr, PTE_W|PTE_U|PTE_P) < 0)
+		panic("sys_page_map");
+	if (sys_page_unmap(0, PFTEMP) < 0)
+		panic("sys_page_unmap");
+	return;
+	// panic("pgfault not implemented");
 }
 
 //
@@ -54,8 +66,29 @@ duppage(envid_t envid, unsigned pn)
 	int r;
 
 	// LAB 4: Your code here.
-	panic("duppage not implemented");
+	void * va = (void *)(pn * PGSIZE);
+	
+	if (uvpt[pn] & PTE_SHARE){
+		r = sys_page_map(thisenv->env_id, (void *)va, envid ,(void *)va, (uvpt[pn] & PTE_SYSCALL));
+		if (r < 0)
+			return r;
+	}else if ( (uvpt[pn] & PTE_W) || (uvpt[pn] & PTE_COW)) {
+		r = sys_page_map(0, va, envid, va, PTE_COW | PTE_P | PTE_U);
+		if (r < 0)  {
+			return r;
+		}
+		r = sys_page_map(0,va, 0,va, PTE_U | PTE_COW | PTE_P);
+		if (r < 0) {
+			return r;
+		}
+	} else  {
+		r = sys_page_map(0,va,envid,va, PTE_P | PTE_U);
+		if (r < 0) {
+			return r;
+		}
+	}
 	return 0;
+	//panic("duppage not implemented");
 }
 
 //
@@ -78,7 +111,36 @@ envid_t
 fork(void)
 {
 	// LAB 4: Your code here.
-	panic("fork not implemented");
+	//panic("fork not implemented");
+	envid_t envid;
+	int r;
+	unsigned pn;
+	set_pgfault_handler(pgfault);
+	envid = sys_exofork();
+	if (envid < 0) {
+		panic("sys_exofork: %e", envid);
+	}
+	if (envid == 0) {
+		// we are children
+		thisenv = &envs[ENVX(sys_getenvid())];
+		return 0;
+	}
+	// for parent
+	for (pn=PGNUM(UTEXT); pn<PGNUM(USTACKTOP); pn++){ 
+            if ((uvpd[pn >> 10] & PTE_P) && (uvpt[pn] & PTE_P))
+                if ((r =  duppage(envid, pn)) < 0)
+                    return r;
+	}
+	if ((r = sys_page_alloc(envid,(void *) (UXSTACKTOP - PGSIZE), (PTE_U | PTE_P | PTE_W))) < 0) {
+		 panic("error");
+	}
+	extern void _pgfault_upcall(void); //缺页处理
+	if((r = sys_env_set_pgfault_upcall(envid, _pgfault_upcall)) < 0){
+			panic("sys_set_pgfault_upcall:%e", r);
+	}
+	if ((r = sys_env_set_status(envid, ENV_RUNNABLE)) < 0)//设置成可运行
+            return r;
+	return envid; 
 }
 
 // Challenge!
