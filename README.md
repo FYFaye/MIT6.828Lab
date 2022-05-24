@@ -8,13 +8,13 @@
 
 [lab1](./report/lab1/lab1.md)
 
-[lab2](./report/lab1/lab2.md)
+[lab2](./report/lab2/lab2.md)
 
-[lab4](./report/lab1/lab3.md)
+[lab4](./report/lab3/lab3.md)
 
-[lab4](./report/lab1/lab4.md)
+[lab4](./report/lab4/lab4.md)
 
-[lab5](./report/lab1/lab5.md)
+[lab5](./report/lab5/lab5.md)
 
 
 
