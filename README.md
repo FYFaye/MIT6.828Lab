@@ -10,7 +10,7 @@
 
 [lab2](./report/lab2/lab2.md)
 
-[lab4](./report/lab3/lab3.md)
+[lab3](./report/lab3/lab3.md)
 
 [lab4](./report/lab4/lab4.md)
 
