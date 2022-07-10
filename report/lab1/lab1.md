@@ -208,7 +208,7 @@ readseg(),前面三条指令是形参的初始化，这里就可以看到，形�
 #### 练习四
     C语言学习，在书中《The C Programming Language》中，阅读5.1到5.5节。然后下载pointers.c的代码，并且编译运行它，确保你理解在屏幕上打印出来的所有的值是怎么来的。尤其要重点理解第1行，第6行的指针地址是如何得到的，以及在第2行到第4行的值是如何得到的，还有为什么在第5行打印出来的值看起来像程序崩溃了。
 
-这里首先介绍了一下ELF文件，参考https://en.wikipedia.org/wiki/Executable_and_Linkable_Format，或者直接在inc/elf.h中的struct可以看到该类文件的固定长度的elf头，其中包括elf文件的分段方式，包括.text段、.rodata段、.data段、.bss段等，具体可以参考https://zhuanlan.zhihu.com/p/348026261；  
+这里首先介绍了一下ELF文件，参考https://en.wikipedia.org/wiki/Executable_and_Linkable_Format 或者直接在inc/elf.h中的struct可以看到该类文件的固定长度的elf头，其中包括elf文件的分段方式，包括.text段、.rodata段、.data段、.bss段等，具体可以参考https://zhuanlan.zhihu.com/p/348026261；  
 
 #### 练习五
     在boot/Makefrag文件中，修改链接地址，使用GDB追踪修改链接后的BootLoader，看看是否有问题；
